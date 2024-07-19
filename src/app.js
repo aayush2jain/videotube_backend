@@ -18,4 +18,7 @@ app.use('/user',userrouter);
 app.use('/video',videorouter);
 app.use('/comment',commentrouter);
 app.use('/sub',subscriberouter);
+app.get('/',async (req,res)=>{
+    res.status(200).json({message:"server is running"})
+})
 export {app}
