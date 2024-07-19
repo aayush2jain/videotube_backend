@@ -5,13 +5,13 @@ import cors from 'cors'
 import bodyParser from "body-parser";
 
 const app=express();
-const corsConfig = {
-   origin:"https://videohub-frontend-8b7r.vercel.app",
-   credential:true,
-   methods:['GET','POST']
-}
-app.options("",cors(corsConfig))
-app.use(cors(corsConfig));
+// const corsConfig = {
+//    origin:"https://videohub-frontend-8b7r.vercel.app",
+//    credential:true,
+//    methods:['GET','POST']
+// }
+// app.options("",cors(corsConfig))
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
