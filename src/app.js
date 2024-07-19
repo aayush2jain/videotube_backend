@@ -5,7 +5,13 @@ import cors from 'cors'
 import bodyParser from "body-parser";
 
 const app=express();
-app.use(cors());
+const corsConfig = {
+   origin:"",
+   credential:true,
+   methods:['GET','POST']
+}
+app.options("",cors(corsConfig))
+app.use(cors(corsConfig));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
