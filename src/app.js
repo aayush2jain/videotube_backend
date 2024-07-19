@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 
 const app=express();
 const corsConfig = {
-   origin:"",
+   origin:"https://videohub-frontend-8b7r.vercel.app/",
    credential:true,
    methods:['GET','POST']
 }
