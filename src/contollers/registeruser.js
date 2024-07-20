@@ -120,7 +120,7 @@ const loginUser = async (req, res, next) => {
             "User logged In Successfully"
         )
     )
-    
+    console.log(che);
     return che
     } catch (error) {
         console.error("Error during login:", error);
@@ -228,11 +228,7 @@ const getCurrentUser = async(req, res) => {
     const user = req.user;
     return res
     .status(200)
-    .json(new ApiResponse(
-        200,
-        {user},
-        "User fetched successfully"
-    ))
+    .json(user)
 }
 
 const updateAccountDetails = async(req, res) => {
