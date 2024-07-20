@@ -96,10 +96,10 @@ const loginUser = async (req, res, next) => {
             // console.log("Incorrect password for user:",email);
             return res.status(299).json({ message: "Incorrect user or password" });
         }
+
        const {accessToken,refreshToken} = await generateAndAcessRefreshToken(existedUser._id)
      
-       
-   
+    
         const loggedInUser = await User.findById(existedUser._id).select("-password")
       
     const options = {
@@ -225,12 +225,12 @@ const changePassword = async(req,res)=>{
 
 const getCurrentUser = async(req, res) => {
     console.log(req.user)
-   
+    const user = req.user;
     return res
     .status(200)
     .json(new ApiResponse(
         200,
-        req.user,
+        {user},
         "User fetched successfully"
     ))
 }
