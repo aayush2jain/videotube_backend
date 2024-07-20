@@ -4,7 +4,7 @@ import { app } from "../app.js";
 
 const connectDb=async()=>{
     try{
-        await mongoose.connect(`mongodb+srv://aayush:aayush94@fullstack.em1yscc.mongodb.net/fullstack`)
+        await mongoose.connect(`${process.env.MONGODB_URL}/fullstack`)
          app.listen(process.env.PORT || 4000,()=>{
           console.log(`server is running at ${process.env.PORT}`)
         })
