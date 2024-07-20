@@ -8,13 +8,13 @@ import mongoose from 'mongoose';
 const generateAndAcessRefreshToken = async(userId)=>{
    try{
       const user = await User.findById(userId);
-    //   console.log(user)
+      console.log(user,"generate token");
       const accessToken =  await user.generateacessToken();
       const refreshToken = await user.generateRefreshToken();
       user.refreshToken = refreshToken;
       await user.save({validateBeforeSave:false});
      
-    //  console.log(refreshToken,"",accessToken)
+     console.log(refreshToken,"",accessToken)
       return {refreshToken,accessToken}
    }
    catch(error){
@@ -99,8 +99,9 @@ const loginUser = async (req, res, next) => {
 
        const {accessToken,refreshToken} = await generateAndAcessRefreshToken(existedUser._id)
      
-    
+        console.log(accessToken,"acess");
         const loggedInUser = await User.findById(existedUser._id).select("-password")
+        console.log("logged in user",loggedInUser);
       
     const options = {
         httpOnly: true,
