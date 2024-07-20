@@ -113,13 +113,7 @@ const loginUser = async (req, res, next) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-       new ApiResponse(
-            200, 
-            {
-                loggedInUser
-            },
-            "User logged In Successfully"
-        )
+      loggedInUser
     )
     console.log("important",che);
     return che
