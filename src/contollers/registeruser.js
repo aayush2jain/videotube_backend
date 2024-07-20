@@ -116,7 +116,7 @@ const loginUser = async (req, res, next) => {
        new ApiResponse(
             200, 
             {
-                Cookie,loggedInUser
+                loggedInUser
             },
             "User logged In Successfully"
         )
