@@ -11,7 +11,10 @@ const app=express();
 //    methods:['GET','POST']
 // }
 // app.options("",cors(corsConfig))
-app.use(cors());
+app.use(cors({
+  origin: 'https://frontend-three-pi-10.vercel.app',
+  credentials: true // Allow credentials (cookies, headers, etc.)
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
