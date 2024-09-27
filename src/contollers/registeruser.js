@@ -105,7 +105,7 @@ const loginUser = async (req, res, next) => {
       
     const options = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === 'production' || false, // Defaults to false if NODE_ENV is not set
     }
 
     const che= await res
