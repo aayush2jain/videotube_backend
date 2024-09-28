@@ -2,13 +2,14 @@ import { uploadOnCloudinary } from '../utils/cloudnary.js';
 import { Video } from '../models/Video.model.js';
 import mongoose from 'mongoose';
 import { User } from '../models/user.model.js';
+
+
 const uploadVideo = async (req, res, next) => {
     try {
         const user = req.user._id;
         const userdata = await User.findById(user);
         const uploaderavatar = userdata.avatar;
         const uploadername = userdata.username;
-        console.log("video user", uploaderavatar, uploadername);
         const { title, description, duration } = req.body;
 
         if (!req.files?.videoFile || !req.files?.thumbnail) {
@@ -17,23 +18,22 @@ const uploadVideo = async (req, res, next) => {
 
         const videoFile = req.files.videoFile[0];
         const thumbnailFile = req.files.thumbnail[0];
-        console.log("videofile",videoFile);
-        console.log("thumbnail",thumbnailFile);
-        // Helper function to upload files to Cloudinary
-        const uploadToCloudinary = (file, resourceType) => {
+
+        // Helper function to upload files to Cloudinary using buffer
+        const uploadToCloudinary = (fileBuffer, resourceType) => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream({ resource_type: resourceType }, (error, result) => {
                     if (error) return reject(error);
                     resolve(result);
                 });
-                // Pipe the file stream to Cloudinary
-                file.stream.pipe(stream);
+                // Convert buffer to stream and pipe it to Cloudinary
+                streamifier.createReadStream(fileBuffer).pipe(stream);
             });
         };
 
-        // Upload video and thumbnail
-        const videoUpload = await uploadToCloudinary(videoFile, 'video');
-        const thumbnailUpload = await uploadToCloudinary(thumbnailFile, 'image');
+        // Upload video and thumbnail using their buffers
+        const videoUpload = await uploadToCloudinary(videoFile.buffer, 'video');
+        const thumbnailUpload = await uploadToCloudinary(thumbnailFile.buffer, 'image');
 
         const video = await Video.create({
             title,
