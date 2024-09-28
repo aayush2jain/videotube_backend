@@ -17,7 +17,8 @@ const uploadVideo = async (req, res, next) => {
 
         const videoFile = req.files.videoFile[0];
         const thumbnailFile = req.files.thumbnail[0];
-
+        console.log("videofile",videoFile);
+        console.log("thumbnail",thumbnailFile);
         // Helper function to upload files to Cloudinary
         const uploadToCloudinary = (file, resourceType) => {
             return new Promise((resolve, reject) => {
