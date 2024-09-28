@@ -31,9 +31,22 @@ const generateAndAcessRefreshToken = async(userId)=>{
 }
 
 
-const registeredUser = async (req,res,next) => {
+const uploadToCloudinary = (fileBuffer, resourceType) => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream({ resource_type: resourceType }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+        });
+        // Convert buffer to stream and pipe it to Cloudinary
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+    });
+};
+
+export const registeredUser = async (req, res, next) => {
     const { fullName, email, username, password } = req.body;
-   console.log("fu;llname",fullName,"email:",email,"username",username,"pass",password);
+
+    console.log("fullname:", fullName, "email:", email, "username:", username, "pass:", password);
+
     // Validate required fields
     if ([fullName, email, username, password].some((field) => field?.trim() === "")) {
         return res.status(400).json({ error: "All fields are required" });
@@ -49,45 +62,38 @@ const registeredUser = async (req,res,next) => {
             return res.status(409).json({ error: "User with email or username already exists" });
         }
 
-        // Handle file uploads
-        const avatarLocalPath = req.files?.avatar?.[0]?.path;
-        
-        let coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+        // Access files from `multer` (memory storage, not path)
+        const avatarFile = req.files?.avatar?.[0];
+        const coverImageFile = req.files?.coverImage?.[0];
 
-        if (!avatarLocalPath) {
+        if (!avatarFile) {
             return res.status(400).json({ error: "Avatar file is required" });
         }
-        const uploadToCloudinary = (fileBuffer, resourceType) => {
-            return new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream({ resource_type: resourceType }, (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                });
-                // Convert buffer to stream and pipe it to Cloudinary
-                streamifier.createReadStream(fileBuffer).pipe(stream);
-            });
-        };
 
-        const avatar = await uploadToCloudinary(avatarLocalPath,'image');
-  
-        const coverImage = coverImageLocalPath ? await uploadToCloudinary(coverImageLocalPath,'image') : null;
+        // Upload avatar to Cloudinary
+        const avatar = await uploadToCloudinary(avatarFile.buffer, 'image');
+
+        // Upload coverImage if available
+        const coverImage = coverImageFile ? await uploadToCloudinary(coverImageFile.buffer, 'image') : null;
 
         // Create the user
         const user = await User.create({
-            
-            avatar: avatar.secure_url,
-            coverImage: coverImage?.secure_url || "",
+            fullName,
             email,
             password,
-            username: username.toLowerCase()
+            username: username.toLowerCase(),
+            avatar: avatar.secure_url,
+            coverImage: coverImage?.secure_url || "",
         });
 
         // Fetch the created user without password and refreshToken
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
-        console.log("bhai register ho gaya",createdUser);
+        
         if (!createdUser) {
             return res.status(500).json({ error: "Something went wrong while registering the user" });
         }
+
+        console.log("User registered:", createdUser);
 
         return res.status(201).json({ message: "User created successfully", user: createdUser });
 
