@@ -7,20 +7,32 @@ const uploadVideo = async (req, res, next) => {
         const user = req.user._id;
         const userdata = await User.findById(user);
         const uploaderavatar = userdata.avatar;
-    
         const uploadername = userdata.username;
-        console.log("video user",uploaderavatar,uploadername);
+        console.log("video user", uploaderavatar, uploadername);
         const { title, description, duration } = req.body;
 
         if (!req.files?.videoFile || !req.files?.thumbnail) {
             return res.status(400).json({ message: "Video file and thumbnail are required" });
         }
 
-        const videoPath = req.files.videoFile[0].path;
-        const thumbnailPath = req.files.thumbnail[0].path;
+        const videoFile = req.files.videoFile[0];
+        const thumbnailFile = req.files.thumbnail[0];
 
-        const videoUpload = await uploadOnCloudinary(videoPath);
-        const thumbnailUpload = await uploadOnCloudinary(thumbnailPath);
+        // Helper function to upload files to Cloudinary
+        const uploadToCloudinary = (file, resourceType) => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream({ resource_type: resourceType }, (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                });
+                // Pipe the file stream to Cloudinary
+                file.stream.pipe(stream);
+            });
+        };
+
+        // Upload video and thumbnail
+        const videoUpload = await uploadToCloudinary(videoFile, 'video');
+        const thumbnailUpload = await uploadToCloudinary(thumbnailFile, 'image');
 
         const video = await Video.create({
             title,
@@ -28,17 +40,14 @@ const uploadVideo = async (req, res, next) => {
             duration,
             videoFile: videoUpload.secure_url,
             thumbnail: thumbnailUpload.secure_url,
-            owner:user,
-            uploaderavatar:uploaderavatar,
-            uploadername:uploadername
+            owner: user,
+            uploaderavatar: uploaderavatar,
+            uploadername: uploadername
         });
 
-        if (video) {
-            return res.status(200).json({ message: "Video uploaded successfully", video });
-        } else {
-            return res.status(500).json({ message: "Failed to upload video" });
-        }
+        return res.status(200).json({ message: "Video uploaded successfully", video });
     } catch (error) {
+        console.error(error);
         next(error);
     }
 };
