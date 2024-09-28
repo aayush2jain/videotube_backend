@@ -42,7 +42,7 @@ const uploadToCloudinary = (fileBuffer, resourceType) => {
     });
 };
 
-export const registeredUser = async (req, res, next) => {
+ const registeredUser = async (req, res, next) => {
     const { fullName, email, username, password } = req.body;
 
     console.log("fullname:", fullName, "email:", email, "username:", username, "pass:", password);
