@@ -78,45 +78,44 @@ const registeredUser = async (req,res,next) => {
     }
 };
 const loginUser = async (req, res, next) => {
-      const { fullName, email, username, password } = req.body;
-   console.log("fullname",fullName,"email:",email,"username",username,"pass",password);
-    // Validate required fields
+    const { fullName, email, username, password } = req.body;
+    console.log("fullname", fullName, "email:", email, "username:", username, "pass", password);
 
     try {
         const existedUser = await User.findOne({ email });
         if (!existedUser) {
-            console.log("User not found:",email);
+            console.log("User not found:", email);
             return res.status(404).json({ message: "User not found" });
         }
-        const check = await existedUser.isPasswordCorrect(password);
-        if (check) {
-            console.log("Login successful for user:", username,email);
-            // return res.status(200).json({ message: "Login successful" });
-        } else {
-            // console.log("Incorrect password for user:",email);
+
+        const isPasswordCorrect = await existedUser.isPasswordCorrect(password);
+        if (!isPasswordCorrect) {
             return res.status(299).json({ message: "Incorrect user or password" });
         }
 
-       const {accessToken,refreshToken} = await generateAndAcessRefreshToken(existedUser._id)
-     
-        console.log(accessToken,"acess");
-        const loggedInUser = await User.findById(existedUser._id).select("-password")
-        console.log("logged in user",loggedInUser);
-      
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' || false, // Defaults to false if NODE_ENV is not set
-    }
+        // Generate access and refresh tokens
+        const { accessToken, refreshToken } = await generateAndAcessRefreshToken(existedUser._id);
+        console.log("Access token:", accessToken);
 
-    const che= await res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      loggedInUser
-    )
-    console.log("important",che);
-    return che
+        // Get user data without the password field
+        const loggedInUser = await User.findById(existedUser._id).select("-password");
+        console.log("Logged in user:", loggedInUser);
+
+        // Set cookie options
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Always use secure cookies in production
+            sameSite: 'None',  // Required for cross-origin cookies
+            maxAge: 24 * 60 * 60 * 1000 // Set the cookie expiration (1 day)
+        };
+
+        // Set cookies and send response
+        res
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .status(200)
+            .json(loggedInUser);
+
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json({ message: "Internal server error" });
