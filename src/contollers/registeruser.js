@@ -4,6 +4,14 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { Cookie } from 'express-session';
 import { Subscription } from '../models/Subscription.model.js';
 import mongoose from 'mongoose';
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from 'streamifier';
+// Cloudinary configuration
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const generateAndAcessRefreshToken = async(userId)=>{
    try{
@@ -49,10 +57,20 @@ const registeredUser = async (req,res,next) => {
         if (!avatarLocalPath) {
             return res.status(400).json({ error: "Avatar file is required" });
         }
+        const uploadToCloudinary = (fileBuffer, resourceType) => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream({ resource_type: resourceType }, (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                });
+                // Convert buffer to stream and pipe it to Cloudinary
+                streamifier.createReadStream(fileBuffer).pipe(stream);
+            });
+        };
 
-        const avatar = await uploadOnCloudinary(avatarLocalPath);
+        const avatar = await uploadToCloudinary(avatarLocalPath,'image');
   
-        const coverImage = coverImageLocalPath ? await uploadOnCloudinary(coverImageLocalPath) : null;
+        const coverImage = coverImageLocalPath ? await uploadToCloudinary(coverImageLocalPath,'image') : null;
 
         // Create the user
         const user = await User.create({
