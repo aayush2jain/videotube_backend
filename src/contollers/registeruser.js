@@ -84,7 +84,7 @@ const registeredUser = async (req,res,next) => {
 
         // Fetch the created user without password and refreshToken
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
-
+        console.log("bhai register ho gaya",createdUser);
         if (!createdUser) {
             return res.status(500).json({ error: "Something went wrong while registering the user" });
         }
