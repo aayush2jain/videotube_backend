@@ -29,7 +29,7 @@ const uploadVideo = async (req, res, next) => {
         // Helper function to upload files to Cloudinary using buffer
       const uploadToCloudinary = (fileBuffer, resourceType) => {
     return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_large_stream({ 
+        const stream = cloudinary.v2.uploader.upload_large_stream({ 
             resource_type: resourceType, 
             chunk_size: 6000000 // chunk size in bytes, 6MB is typical
         }, (error, result) => {
