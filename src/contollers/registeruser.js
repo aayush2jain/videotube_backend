@@ -42,7 +42,7 @@ const uploadToCloudinary = (fileBuffer, resourceType) => {
     });
 };
 
- const registeredUser = async (req, res, next) => {
+    const registeredUser = async (req, res, next) => {
     const { fullName, email, username, password } = req.body;
 
     console.log("fullname:", fullName, "email:", email, "username:", username, "pass:", password);
@@ -96,7 +96,6 @@ const uploadToCloudinary = (fileBuffer, resourceType) => {
         console.log("User registered:", createdUser);
 
         return res.status(201).json({ message: "User created successfully", user: createdUser });
-
     } catch (error) {
         next(error);
     }
@@ -401,7 +400,6 @@ const getUserChannelProfile =async(req, res) => {
             }
         }
     ])
-
     if (!channel?.length) {
        console.log("channel nahu chal rha")
     }
