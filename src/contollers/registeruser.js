@@ -55,7 +55,7 @@ const uploadToCloudinary = (fileBuffer, resourceType) => {
     try {
         // Check if the user already exists
         const existedUser = await User.findOne({
-            $or: [{email}]
+            $or: [{username},{email}]
         });
 
         if (existedUser) {
