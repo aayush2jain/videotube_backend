@@ -12,7 +12,7 @@ const app=express();
 // }
 // app.options("",cors(corsConfig))
 app.use(cors({
-  origin: 'https://frontend-three-pi-10.vercel.app',
+  origin: ['https://frontend-three-pi-10.vercel.app', 'http://localhost:3000'],
   credentials: true // Allow credentials (cookies, headers, etc.)
 }));
 app.use(express.json());
